@@ -1,0 +1,51 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-04-08 13:52:45.580691",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "private_key",
+  "column_break_iqbw",
+  "certificate"
+ ],
+ "fields": [
+  {
+   "fieldname": "private_key",
+   "fieldtype": "Attach",
+   "label": "Private Key"
+  },
+  {
+   "fieldname": "column_break_iqbw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "certificate",
+   "fieldtype": "Attach",
+   "label": "Certificate"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-05-07 14:06:20.049049",
+ "modified_by": "Administrator",
+ "module": "Digital Signer",
+ "name": "Document Sign Setting",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
