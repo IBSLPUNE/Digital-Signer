@@ -8,7 +8,10 @@ requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [
-    # "frappe~=15.0.0" # Installed and managed by bench.
+    # "frappe~=15.0.0"  # Installed and managed by Bench.
+    "pyHanko[opentype]>=0.18.0",
+    "cryptography>=41.0.0",
+    "pypdf>=3.7.0"
 ]
 
 [build-system]
