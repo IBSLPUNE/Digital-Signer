@@ -145,7 +145,7 @@ from pyhanko.stamp import QRStampStyle
 from PyPDF2 import PdfReader
 
 @frappe.whitelist()
-def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_password=None, multiple_page_sign=None):
+def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_password=None, multiple_page = None):
     """
     Generates the Sales Invoice PDF, digitally signs it page by page, and attaches it to the Sales Invoice.
     """
@@ -210,9 +210,11 @@ def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_p
     input_pdf.seek(0)
     signed_pdf_io = input_pdf
 
-    if digi.multiple_page_sign or multiple_page_sign:
+    if int(multiple_page or 0) == 1:
         reader = IncrementalPdfFileWriter(input_pdf)
-        num_pages = len(reader.root['/Pages'].get_object()['/Kids'])
+        #frappe.throw(f"hello {num_pages} and {multiple_page}")
+        #frappe.throw(f'hello {num_pages}")
+        #num_pages = len(reader.root['/Pages'].get_object()['/Kids'])
 
         for i in range(num_pages):
             signed_pdf_io.seek(0)
@@ -252,7 +254,9 @@ def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_p
     else:
         # Sign only the last page
         reader = IncrementalPdfFileWriter(input_pdf)
-        num_pages = len(reader.root['/Pages'].get_object()['/Kids'])
+        #frappe.throw(f"{num_pages} and {multiple_page}")
+        #num_pages = len(reader.root['/Pages'].get_object()['/Kids'])
+        #frappe.throw(f'hello Lucky {num_pages}")
         output = BytesIO()
 
         sig_field_spec = SigFieldSpec(

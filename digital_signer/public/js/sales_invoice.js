@@ -35,8 +35,7 @@ frappe.ui.form.on("Sales Invoice", {
                 {
                     fieldname: 'multiple_page_sign',
                     fieldtype: 'Check',
-                    label: 'Multiple Pages Sign',
-                    reqd: 1
+                    label: 'Multiple Pages Sign'
                 }
                             ],
                             function(values) {
@@ -47,7 +46,7 @@ frappe.ui.form.on("Sales Invoice", {
                                         sales_invoice_name: frm.doc.name,
                                         print_format_name: values.print_format,
                                         entered_password: values.password,
-                                        multiple_page_sign: values.multiple_page_sign
+                                        multiple_page: values.multiple_page_sign ? 1 : 0
                                         
                                     },
                                     callback: function(r) {
