@@ -24,7 +24,13 @@ frappe.ui.form.on("Sales Invoice", {
                                     fieldtype: 'Select',
                                     options: print_formats,
                                     reqd: 1
-                                }
+                                },
+                                {
+                    fieldname: 'password',
+                    fieldtype: 'Password',
+                    label: 'Enter PFX Password',
+                    reqd: 1
+                }
                             ],
                             function(values) {
                                 // Call the server-side method with selected print format
@@ -32,7 +38,9 @@ frappe.ui.form.on("Sales Invoice", {
                                     method: "digital_signer.api.sign_sales_invoice_pdf",
                                     args: {
                                         sales_invoice_name: frm.doc.name,
-                                        print_format_name: values.print_format
+                                        print_format_name: values.print_format,
+                                        entered_password: values.password
+                                        
                                     },
                                     callback: function(r) {
                                         if (!r.exc) {

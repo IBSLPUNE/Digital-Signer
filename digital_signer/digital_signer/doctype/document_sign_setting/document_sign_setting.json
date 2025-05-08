@@ -5,30 +5,87 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "pfx_file_use",
+  "pfx_file",
+  "section_break_jqdnu",
   "private_key",
   "column_break_iqbw",
-  "certificate"
+  "certificate",
+  "section_break_jk2fi",
+  "dsc_password",
+  "sign_address",
+  "column_break_mhnpo",
+  "url"
  ],
  "fields": [
   {
+   "depends_on": "eval:doc.pfx_file_use == 0;",
    "fieldname": "private_key",
    "fieldtype": "Attach",
-   "label": "Private Key"
+   "label": "Private Key",
+   "read_only_depends_on": "eval:doc.pfx_file_use == 1;"
   },
   {
    "fieldname": "column_break_iqbw",
    "fieldtype": "Column Break"
   },
   {
+   "depends_on": "eval:doc.pfx_file_use == 0;",
    "fieldname": "certificate",
    "fieldtype": "Attach",
-   "label": "Certificate"
+   "label": "Certificate",
+   "read_only_depends_on": "eval:doc.pfx_file_use == 1;"
+  },
+  {
+   "fieldname": "section_break_jk2fi",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "dsc_password",
+   "fieldtype": "Password",
+   "in_list_view": 1,
+   "label": "DSC Password",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "pfx_file_use",
+   "fieldtype": "Check",
+   "label": "PFX File Use"
+  },
+  {
+   "fieldname": "section_break_jqdnu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.pfx_file_use == 1;",
+   "fieldname": "pfx_file",
+   "fieldtype": "Attach",
+   "label": "PFX File",
+   "mandatory_depends_on": "eval:doc.pfx_file_use == 1;",
+   "read_only_depends_on": "eval:doc.pfx_file_use == 0;"
+  },
+  {
+   "fieldname": "column_break_mhnpo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "url",
+   "fieldtype": "Data",
+   "label": "URL",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sign_address",
+   "fieldtype": "Data",
+   "label": "Sign Address",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-05-07 14:06:20.049049",
+ "modified": "2025-05-08 13:36:23.746512",
  "modified_by": "Administrator",
  "module": "Digital Signer",
  "name": "Document Sign Setting",
