@@ -145,7 +145,7 @@ from pyhanko.stamp import QRStampStyle
 from PyPDF2 import PdfReader
 
 @frappe.whitelist()
-def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_password=None):
+def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_password=None, multiple_page_sign=None):
     """
     Generates the Sales Invoice PDF, digitally signs it page by page, and attaches it to the Sales Invoice.
     """
@@ -210,15 +210,55 @@ def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_p
     input_pdf.seek(0)
     signed_pdf_io = input_pdf
 
-    for i in range(num_pages):
-        signed_pdf_io.seek(0)
-        reader = IncrementalPdfFileWriter(signed_pdf_io)
+    if digi.multiple_page_sign or multiple_page_sign:
+        reader = IncrementalPdfFileWriter(input_pdf)
+        num_pages = len(reader.root['/Pages'].get_object()['/Kids'])
+
+        for i in range(num_pages):
+            signed_pdf_io.seek(0)
+            reader = IncrementalPdfFileWriter(signed_pdf_io)
+            output = BytesIO()
+
+            sig_field_spec = SigFieldSpec(
+                sig_field_name=f"Signature_Page_{i+1}",
+                box=(345, 50, 545, 100),
+                on_page=i
+            )
+            append_signature_field(reader, sig_field_spec)
+
+            signature_meta = PdfSignatureMetadata(
+                field_name=sig_field_spec.sig_field_name,
+                reason="Digitally signed on Sales Invoice",
+                location=digi.sign_address or "India"
+            )
+
+            pdf_signer = PdfSigner(
+                signature_meta,
+                signer=signer,
+                stamp_style=QRStampStyle(
+                    stamp_text="For: %(signer)s\nTime: %(ts)s"
+                )
+            )
+
+            pdf_signer.sign_pdf(
+                reader,
+                output=output,
+                appearance_text_params={
+                    'url': digi.url
+                }
+            )
+
+            signed_pdf_io = output
+    else:
+        # Sign only the last page
+        reader = IncrementalPdfFileWriter(input_pdf)
+        num_pages = len(reader.root['/Pages'].get_object()['/Kids'])
         output = BytesIO()
 
         sig_field_spec = SigFieldSpec(
-            sig_field_name=f"Signature_Page_{i+1}",
+            sig_field_name="Signature_Last_Page",
             box=(345, 50, 545, 100),
-            on_page=i
+            on_page=num_pages - 1
         )
         append_signature_field(reader, sig_field_spec)
 

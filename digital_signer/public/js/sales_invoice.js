@@ -9,7 +9,8 @@ frappe.ui.form.on("Sales Invoice", {
                     args: {
                         doctype: "Print Format",
                         filters: {
-                            doc_type: "Sales Invoice"
+                            doc_type: "Sales Invoice",
+                            disabled : 0
                         },
                         fields: ["name"]
                     },
@@ -30,6 +31,12 @@ frappe.ui.form.on("Sales Invoice", {
                     fieldtype: 'Password',
                     label: 'Enter PFX Password',
                     reqd: 1
+                },
+                {
+                    fieldname: 'multiple_page_sign',
+                    fieldtype: 'Check',
+                    label: 'Multiple Pages Sign',
+                    reqd: 1
                 }
                             ],
                             function(values) {
@@ -39,7 +46,8 @@ frappe.ui.form.on("Sales Invoice", {
                                     args: {
                                         sales_invoice_name: frm.doc.name,
                                         print_format_name: values.print_format,
-                                        entered_password: values.password
+                                        entered_password: values.password,
+                                        multiple_page_sign: values.multiple_page_sign
                                         
                                     },
                                     callback: function(r) {

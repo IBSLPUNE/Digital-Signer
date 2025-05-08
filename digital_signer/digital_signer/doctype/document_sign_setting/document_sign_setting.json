@@ -15,7 +15,8 @@
   "dsc_password",
   "sign_address",
   "column_break_mhnpo",
-  "url"
+  "url",
+  "multiple_page_sign"
  ],
  "fields": [
   {
@@ -80,12 +81,18 @@
    "fieldtype": "Data",
    "label": "Sign Address",
    "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "multiple_page_sign",
+   "fieldtype": "Check",
+   "label": "Multiple Page Sign"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-05-08 13:36:23.746512",
+ "modified": "2025-05-08 15:12:04.828811",
  "modified_by": "Administrator",
  "module": "Digital Signer",
  "name": "Document Sign Setting",
