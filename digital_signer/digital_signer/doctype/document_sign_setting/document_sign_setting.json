@@ -16,7 +16,9 @@
   "sign_address",
   "column_break_mhnpo",
   "url",
-  "multiple_page_sign"
+  "multiple_page_sign",
+  "section_break_briqu",
+  "location"
  ],
  "fields": [
   {
@@ -87,12 +89,22 @@
    "fieldname": "multiple_page_sign",
    "fieldtype": "Check",
    "label": "Multiple Page Sign"
+  },
+  {
+   "fieldname": "section_break_briqu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "default": "(345, 50, 545, 100)",
+   "fieldname": "location",
+   "fieldtype": "Data",
+   "label": "Location (e.g. (345, 50, 545, 100))"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-05-08 15:12:04.828811",
+ "modified": "2025-05-15 13:21:30.809698",
  "modified_by": "Administrator",
  "module": "Digital Signer",
  "name": "Document Sign Setting",

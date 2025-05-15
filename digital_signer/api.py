@@ -368,7 +368,7 @@ def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_p
 
         sig_field_spec = SigFieldSpec(
             sig_field_name=f"Signature_Page_{page_num + 1}",
-            box=(345, 50, 545, 100),
+            box=eval(digi.location) or (345, 50, 545, 100),
             on_page=page_num
         )
         append_signature_field(reader, sig_field_spec)
