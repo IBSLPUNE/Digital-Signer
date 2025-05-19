@@ -1,6 +1,7 @@
 import frappe
 import os
 from io import BytesIO
+import json
 from pyhanko.sign import signers
 from pyhanko.sign.signers import PdfSigner, PdfSignatureMetadata
 from pyhanko.sign.fields import SigFieldSpec, append_signature_field
@@ -9,14 +10,14 @@ from pyhanko.stamp import QRStampStyle
 from PyPDF2 import PdfReader
 
 @frappe.whitelist()
-def sign_sales_invoice_pdfs(sales_invoice_name, print_format_name=None, entered_password=None, x=0, y=0, page_range=None):
+def sign_sales_invoice_pdfs(doctype,sales_invoice_name, print_format_name=None, entered_password=None, x=0, y=0, page_range=None):
     try:
         # Get Sales Invoice Doc
-        sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
+        sales_invoice = frappe.get_doc(doctype, sales_invoice_name)
 
         # Get PDF content of Sales Invoice
         pdf_content = frappe.get_print(
-            "Sales Invoice",
+            doctype,
             sales_invoice_name,
             print_format=print_format_name or "Digital Sign",
             as_pdf=True
@@ -86,7 +87,7 @@ def sign_sales_invoice_pdfs(sales_invoice_name, print_format_name=None, entered_
         # Signature metadata
         signature_meta = PdfSignatureMetadata(
             field_name=sig_field_spec.sig_field_name,
-            reason="Digitally signed on Sales Invoice",
+            reason=f"Digitally signed on {doctype}",
             location=digi.sign_address or "India"
         )
 
@@ -111,7 +112,7 @@ def sign_sales_invoice_pdfs(sales_invoice_name, print_format_name=None, entered_
         file_doc = frappe.get_doc({
             "doctype": "File",
             "file_name": f"{sales_invoice.name}-signed.pdf",
-            "attached_to_doctype": "Sales Invoice",
+            "attached_to_doctype": doctype,
             "attached_to_name": sales_invoice.name,
             "is_private": 1,
             "content": output.getvalue(),
@@ -122,27 +123,18 @@ def sign_sales_invoice_pdfs(sales_invoice_name, print_format_name=None, entered_
         return "success"
 
     except Exception as e:
-        frappe.log_error(f"Error in sign_sales_invoice_pdf: {str(e)}", "Sales Invoice PDF Signing")
+        frappe.log_error(f"Error in sign_sales_invoice_pdf: {str(e)}", "{doctype} PDF Signing")
         frappe.throw(f"Failed to sign PDF: {str(e)}")
 # Python (Frappe Backend) - sign_sales_invoice_pdfs
-import frappe
-import os
-import json
-from io import BytesIO
-from pyhanko.sign import signers
-from pyhanko.sign.signers import PdfSigner, PdfSignatureMetadata
-from pyhanko.sign.fields import SigFieldSpec, append_signature_field
-from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
-from pyhanko.stamp import QRStampStyle
-from PyPDF2 import PdfReader
+
 
 @frappe.whitelist()
-def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_password=None, coordinates_json=None):
+def sign_sales_invoice_pdf(doctype,sales_invoice_name, print_format_name=None, entered_password=None, coordinates_json=None):
     try:
-        sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
+        sales_invoice = frappe.get_doc(doctype, sales_invoice_name)
 
         pdf_content = frappe.get_print(
-            "Sales Invoice",
+            doctype,
             sales_invoice_name,
             print_format=print_format_name or "Standard",
             as_pdf=True
@@ -195,7 +187,7 @@ def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_p
 
             signature_meta = PdfSignatureMetadata(
                 field_name=field_name,
-                reason="Digitally signed on Sales Invoice",
+                reason=f"Digitally signed on {doctype}",
                 location=digi.sign_address or "India"
             )
             signer_obj = PdfSigner(
@@ -214,7 +206,7 @@ def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_p
         file_doc = frappe.get_doc({
             "doctype": "File",
             "file_name": f"{sales_invoice.name}-signed.pdf",
-            "attached_to_doctype": "Sales Invoice",
+            "attached_to_doctype": doctype,
             "attached_to_name": sales_invoice.name,
             "is_private": 1,
             "content": final_output,
@@ -225,6 +217,6 @@ def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_p
         return "success"
 
     except Exception as e:
-        frappe.log_error(f"Error in sign_sales_invoice_pdf: {str(e)}", "Sales Invoice PDF Signing")
+        frappe.log_error(f"Error in sign_sales_invoice_pdf: {str(e)}", "{doctype} PDF Signing")
         frappe.throw(f"Failed to sign PDF: {str(e)}")
 

@@ -9,12 +9,13 @@ from pyhanko.sign.fields import SigFieldSpec, append_signature_field
 from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
 from pyhanko.stamp import QRStampStyle
 from PyPDF2 import PdfReader
+import ast
 @frappe.whitelist()
-def generate_invoice_pdf(docname):
+def generate_invoice_pdf(doctype,docname):
     """Generate Sales Invoice PDF and return as base64"""
     try:
-        doc = frappe.get_doc("Sales Invoice", docname)  # Get the Sales Invoice
-        html = frappe.get_print("Sales Invoice", docname, print_format="Standard")
+        doc = frappe.get_doc(doctype, docname)  # Get the Sales Invoice
+        html = frappe.get_print(doctype, docname, print_format="Standard")
         pdf_data = get_pdf(html)
 
         # Convert PDF to base64
@@ -27,123 +28,18 @@ def generate_invoice_pdf(docname):
 
 
 
-@frappe.whitelist()
-def sign_sales_invoice(sales_invoice_name, print_format_name):
-    sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
 
-    # Temporary file paths
-    pdf_path = f"/tmp/{sales_invoice.name}.pdf"
-    os.makedirs(os.path.dirname(pdf_path), exist_ok=True)
-
-    # Generate unsigned PDF
-    pdf_content = frappe.get_print(
-        "Sales Invoice",
-        sales_invoice_name,
-        print_format=print_format_name or "Digital Sign",
-        as_pdf=True
-    )
-
-    # Save PDF
-    with open(pdf_path, "wb") as f:
-        f.write(pdf_content)
-
-    # Load cert and key
-    digi = frappe.get_doc("Document Sign Setting")
-    cert = digi.certificate
-    pvt = digi.private_key
-
-    if not cert or not pvt:
-        frappe.throw("Private Key or Certificate not uploaded in Document Sign Setting.")
-
-    cert_path = frappe.get_site_path(cert.lstrip("/"))
-    key_path = frappe.get_site_path(pvt.lstrip("/"))
-
-    signer = signers.SimpleSigner.load(key_path, cert_path)
-
-    # Count PDF pages
-    reader = PdfReader(pdf_path)
-    num_pages = len(reader.pages)
-
-    # Prepare initial stream
-    signed_pdf_io = BytesIO()
-    signed_pdf_io.write(pdf_content)
-    signed_pdf_io.seek(0)
-
-    # Sign all pages (except last if needed)
-    for i in range(num_pages):
-        signed_pdf_io.seek(0)
-        writer = IncrementalPdfFileWriter(signed_pdf_io)
-        output = BytesIO()
-
-        field_name = f"Signature_Page_{i+1}"
-        visible_box = (345, 50, 545, 100)
-
-        sig_field_spec = SigFieldSpec(
-            sig_field_name=field_name,
-            box=visible_box,
-            on_page=i
-        )
-        append_signature_field(writer, sig_field_spec)
-
-        signature_meta = PdfSignatureMetadata(
-            field_name=field_name,
-            reason="Digitally signed on Sales Invoice",
-            location="Pune, Maharashtra, India"
-        )
-
-        qr_stamp = QRStampStyle(
-            stamp_text="For: %(signer)s\nTime: %(ts)s"
-        )
-
-        appearance_text_params = {
-            'url': 'https://bioprime.frappe.cloud/app'
-        }
-
-        pdf_signer = signers.PdfSigner(
-            signature_meta,
-            signer=signer,
-            stamp_style=qr_stamp
-        )
-
-        pdf_signer.sign_pdf(
-            writer,
-            output=output,
-            appearance_text_params=appearance_text_params
-        )
-
-        signed_pdf_io = output  # Update stream for next page
-
-    # Final signed PDF is in signed_pdf_io
-    signed_pdf_io.seek(0)
-    signed_pdf_path = f"/tmp/{sales_invoice.name}-signed.pdf"
-    with open(signed_pdf_path, "wb") as f:
-        f.write(signed_pdf_io.read())
-
-    # Attach to Sales Invoice
-    with open(signed_pdf_path, "rb") as signed_file:
-        file_doc = frappe.get_doc({
-            "doctype": "File",
-            "file_name": f"{sales_invoice.name}-signed.pdf",
-            "attached_to_doctype": "Sales Invoice",
-            "attached_to_name": sales_invoice.name,
-            "is_private": 1,
-            "content": signed_file.read(),
-        })
-        file_doc.insert(ignore_permissions=True)
-
-    frappe.msgprint(f"Signed PDF successfully attached to Sales Invoice {sales_invoice.name}.")
-    return {"status": "success", "file_url": file_doc.file_url}
 
 
 
 @frappe.whitelist()
-def sign_sales_invoice_pdfs(sales_invoice_name, print_format_name=None, entered_password=None, multiple_page = None):
+def sign_sales_invoice_pdfs(doctype,sales_invoice_name, print_format_name=None, entered_password=None, multiple_page = None):
     """
     Generates the Sales Invoice PDF, digitally signs it page by page, and attaches it to the Sales Invoice.
     """
-    sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
+    sales_invoice = frappe.get_doc(doctype, sales_invoice_name)
     pdf_content = frappe.get_print(
-        "Sales Invoice",
+        doctype,
         sales_invoice_name,
         print_format=print_format_name or "Digital Sign",
         as_pdf=True
@@ -222,7 +118,7 @@ def sign_sales_invoice_pdfs(sales_invoice_name, print_format_name=None, entered_
 
             signature_meta = PdfSignatureMetadata(
                 field_name=sig_field_spec.sig_field_name,
-                reason="Digitally signed on Sales Invoice",
+                reason=f"Digitally signed on {doctype}",
                 location=digi.sign_address or "India"
             )
 
@@ -260,7 +156,7 @@ def sign_sales_invoice_pdfs(sales_invoice_name, print_format_name=None, entered_
 
         signature_meta = PdfSignatureMetadata(
             field_name=sig_field_spec.sig_field_name,
-            reason="Digitally signed on Sales Invoice",
+            reason=f"Digitally signed on {doctype}",
             location=digi.sign_address or "India"
         )
 
@@ -286,7 +182,7 @@ def sign_sales_invoice_pdfs(sales_invoice_name, print_format_name=None, entered_
     file_doc = frappe.get_doc({
         "doctype": "File",
         "file_name": f"{sales_invoice.name}-signed.pdf",
-        "attached_to_doctype": "Sales Invoice",
+        "attached_to_doctype": doctype,
         "attached_to_name": sales_invoice.name,
         "is_private": 1,
         "content": signed_pdf_io.getvalue(),
@@ -297,11 +193,11 @@ def sign_sales_invoice_pdfs(sales_invoice_name, print_format_name=None, entered_
 
 
 @frappe.whitelist()
-def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_password=None, multiple_page=None, page_range=None):
+def sign_sales_invoice_pdf(doctype,sales_invoice_name, print_format_name=None, entered_password=None, multiple_page=None, page_range=None):
 
-    sales_invoice = frappe.get_doc("Sales Invoice", sales_invoice_name)
+    sales_invoice = frappe.get_doc(doctype, sales_invoice_name)
     pdf_content = frappe.get_print(
-        "Sales Invoice",
+        doctype,
         sales_invoice_name,
         print_format=print_format_name or "Digital Sign",
         as_pdf=True
@@ -365,17 +261,18 @@ def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_p
         signed_pdf_io.seek(0)
         reader = IncrementalPdfFileWriter(signed_pdf_io)
         output = BytesIO()
-
+        box = ast.literal_eval(digi.location) if digi.location else None
+        box = (345, 50, 545, 100) if not box else ast.literal_eval(digi.location)
         sig_field_spec = SigFieldSpec(
             sig_field_name=f"Signature_Page_{page_num + 1}",
-            box=eval(digi.location) or (345, 50, 545, 100),
+            box=box,
             on_page=page_num
         )
         append_signature_field(reader, sig_field_spec)
 
         signature_meta = PdfSignatureMetadata(
             field_name=sig_field_spec.sig_field_name,
-            reason="Digitally signed on Sales Invoice",
+            reason=f"Digitally signed on {doctype}",
             location=digi.sign_address or "India"
         )
 
@@ -399,7 +296,7 @@ def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_p
     file_doc = frappe.get_doc({
         "doctype": "File",
         "file_name": f"{sales_invoice.name}-signed.pdf",
-        "attached_to_doctype": "Sales Invoice",
+        "attached_to_doctype": doctype,
         "attached_to_name": sales_invoice.name,
         "is_private": 1,
         "content": signed_pdf_io.getvalue(),
@@ -409,12 +306,12 @@ def sign_sales_invoice_pdf(sales_invoice_name, print_format_name=None, entered_p
     return "success"
 
 @frappe.whitelist()
-def get_pdf_base64(name,print_format_name):
-    pdf_content = frappe.get_print("Sales Invoice", name, print_format = print_format_name or "Digital Sign", as_pdf=True)
+def get_pdf_base64(doctype,name,print_format_name):
+    pdf_content = frappe.get_print(doctype, name, print_format = print_format_name or "Digital Sign", as_pdf=True)
     return base64.b64encode(pdf_content).decode('utf-8')
 
 @frappe.whitelist()
-def save_signed_pdf(docname, signed_pdf_base64):
+def save_signed_pdf(doctype,docname, signed_pdf_base64):
     file_path = f"/tmp/{docname}-signed.pdf"
     with open(file_path, "wb") as f:
         f.write(base64.b64decode(signed_pdf_base64))
@@ -423,7 +320,7 @@ def save_signed_pdf(docname, signed_pdf_base64):
         file_doc = frappe.get_doc({
             "doctype": "File",
             "file_name": f"{docname}-signed.pdf",
-            "attached_to_doctype": "Sales Invoice",
+            "attached_to_doctype": doctype,
             "attached_to_name": docname,
             "is_private": 1,
             "content": signed_file.read(),

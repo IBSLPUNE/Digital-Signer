@@ -2,6 +2,7 @@
 frappe.ui.form.on("Sales Invoice", {
     refresh: function(frm) {
         if (frm.doc.docstatus == 1) {
+         frm.add_custom_button("Sign", null, "Actions");
             frm.add_custom_button("Sign & Attach PDF", function() {
 
                 frappe.call({
@@ -59,6 +60,7 @@ frappe.ui.form.on("Sales Invoice", {
                                     frappe.call({
                                         method: "digital_signer.api.sign_sales_invoice_pdf",
                                         args: {
+                                            doctype: frm.doctype,
                                             sales_invoice_name: frm.doc.name,
                                             print_format_name: values.print_format,
                                             entered_password: values.password,
@@ -79,14 +81,7 @@ frappe.ui.form.on("Sales Invoice", {
                         }
                     }
                 });
-            });
-        }
-    }
-});
-
-frappe.ui.form.on("Sales Invoice", {
-    refresh: function(frm) {
-        if (frm.doc.docstatus == 1) {
+            },"Sign");
             frm.add_custom_button("Sign with Preview PDF", function() {
 
                 frappe.call({
@@ -133,10 +128,10 @@ frappe.ui.form.on("Sales Invoice", {
                                         return;
                                     }
                                     dialog.hide();
-
                                     frappe.call({
-                                        method: "digital_signer.test_api.sign_sales_invoice_pdf",
+                                        method: "digital_signer.preview_api.sign_sales_invoice_pdf",
                                         args: {
+                                            doctype: frm.doctype,
                                             sales_invoice_name: frm.doc.name,
                                             print_format_name: values.print_format,
                                             entered_password: values.password,
@@ -240,9 +235,11 @@ frappe.ui.form.on("Sales Invoice", {
                         }
                     }
                 });
-            });
+            },"Sign");
         }
     }
 });
+
+
 
 
