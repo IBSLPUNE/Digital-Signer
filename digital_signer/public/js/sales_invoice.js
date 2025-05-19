@@ -2,7 +2,6 @@
 frappe.ui.form.on("Sales Invoice", {
     refresh: function(frm) {
         if (frm.doc.docstatus == 1) {
-         frm.add_custom_button("Sign", null, "Actions");
             frm.add_custom_button("Sign & Attach PDF", function() {
 
                 frappe.call({
