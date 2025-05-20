@@ -32,7 +32,7 @@ bench get-app https://github.com/IBSLPUNE/Digital-Signer.git
 bench --site your-site-name install-app digital_signer
 pip install "pyHanko[opentype]>=0.18.0" cryptography>=41.0.0 pypdf>=3.7.0
 
-
+---
 🔧 Document Sign Setting Configuration
 To use digital signing, you must first configure the Document Sign Setting in ERPNext.
 
