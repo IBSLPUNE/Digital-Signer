@@ -47,7 +47,7 @@ To use digital signing, you must first configure the Document Sign Setting in ER
 | **PFX File**       | Upload your `.pfx` certificate file (stored in `private/files/`)                                      |
 | **DSC Password**   | The password for your `.pfx` file                                                                     |
 | **Sign Address**   | Your signing location (e.g., `Pune Maharashtra, India`)                                               |
-| **URL**            | The server URL that signs the PDF (e.g., `https://bioprime.frappe.cloud/app`)                         |
+| **URL**            | The server URL that signs the PDF (e.g., `https://test.frappe.cloud/app`)                         |
 | **Location**       | Coordinates for the visible signature in format: `(x1, y1, x2, y2)`<br>Example: `(345, 50, 545, 100)` |
 
 PFX File Use: ✅
