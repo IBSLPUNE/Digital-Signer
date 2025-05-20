@@ -56,7 +56,9 @@ DSC Password: "Your PFX password"
 Sign Address: Pune Maharashtra, India
 URL: "your site url"
 Location: (345, 50, 545, 100)
-![image](https://github.com/user-attachments/assets/f1134a94-5c3b-4de4-81a1-d3bb696122b4)
+
+![image](https://github.com/user-attachments/assets/397ba246-aa78-4499-946d-15f94c146748)
+
 
 
 
