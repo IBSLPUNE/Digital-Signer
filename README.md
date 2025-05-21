@@ -1,6 +1,6 @@
 # ERPNext Digital Signature Integration
 
-This app allows you to **digitally sign Sales Invoices** in ERPNext using a visible signature via a PFX certificate. It supports selecting the **exact signature location** on a previewed PDF and then signs and attaches the signed document to the Sales Invoice.
+This app allows you to **digitally sign Sales Order, Sales Invoices, Purchase Order, and Purchase Invoice** in ERPNext using a visible signature via a PFX certificate. It supports selecting the **exact signature location** on a previewed PDF and then signing and attaching the signed document to the respective Sales Order, Sales Invoices, Purchase Order, and Purchase Invoice.
 
 ---
 
@@ -8,7 +8,7 @@ This app allows you to **digitally sign Sales Invoices** in ERPNext using a visi
 
 - Digitally sign submitted Sales Invoices using your `.pfx` certificate
 - Choose the exact signature position by clicking on a PDF preview
-- Automatically attaches the signed PDF to the Sales Invoice
+- Automatically attaches the signed PDF to the respective Sales Order, Sales Invoices, Purchase Order, and Purchase Invoice.
 - Supports visible signatures on any page
 - Secure password input for PFX files
 - Intended usage PFX: Sign transaction, Sign document, Client Authentication, 1.3.6.1.4.1.311.10.3.12, 1.3.6.1.4.1.311.20.2.2, Acrobat Authentic Documents.
