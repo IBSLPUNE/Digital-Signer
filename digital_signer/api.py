@@ -317,7 +317,7 @@ def sign_sales_invoice_pdf(doctype, sales_invoice_name, print_format_name=None, 
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), f"{doctype} Digital Sign Error")
         frappe.msgprint("Error log created.")
-        frappe.throw("An unexpected error occurred while processing the digital signature or you have enter wrong password in setting or PFX file invalid And Error log has been created.")
+        frappe.throw("You entered an incorrect password in Document Sign Setting, or the PFX file is invalid. Please check the error log for more details.")
 
 
 @frappe.whitelist()
