@@ -8,7 +8,7 @@ from pyhanko.sign.fields import SigFieldSpec, append_signature_field
 from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
 from pyhanko.stamp import QRStampStyle
 from PyPDF2 import PdfReader
-
+from frappe import ValidationError
 @frappe.whitelist()
 def sign_sales_invoice_pdfs(doctype,sales_invoice_name, print_format_name=None, entered_password=None, x=0, y=0, page_range=None):
     try:
@@ -122,6 +122,8 @@ def sign_sales_invoice_pdfs(doctype,sales_invoice_name, print_format_name=None, 
 
         return "success"
 
+    except ValidationError:
+        raise
     except Exception as e:
         frappe.log_error(f"Error in sign_sales_invoice_pdf: {str(e)}", "{doctype} PDF Signing")
         frappe.throw(f"Failed to sign PDF: {str(e)}")
@@ -225,6 +227,8 @@ def sign_sales_invoice_pdf(doctype,sales_invoice_name, print_format_name=None, e
 
         return "success"
 
+    except ValidationError:
+        raise
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), f"{doctype} Digital Sign Error")
         #frappe.throw(f"Failed to sign PDF: {str(e)}")

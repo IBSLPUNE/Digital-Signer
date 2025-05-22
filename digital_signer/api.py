@@ -10,6 +10,7 @@ from pyhanko.pdf_utils.incremental_writer import IncrementalPdfFileWriter
 from pyhanko.stamp import QRStampStyle
 from PyPDF2 import PdfReader
 import ast
+from frappe import ValidationError
 @frappe.whitelist()
 def generate_invoice_pdf(doctype,docname):
     """Generate Sales Invoice PDF and return as base64"""
@@ -193,7 +194,6 @@ def sign_sales_invoice_pdfs(doctype,sales_invoice_name, print_format_name=None, 
 
 
 @frappe.whitelist()
-@frappe.whitelist()
 def sign_sales_invoice_pdf(doctype, sales_invoice_name, print_format_name=None, entered_password=None, multiple_page=None, page_range=None):
     try:
         sales_invoice = frappe.get_doc(doctype, sales_invoice_name)
@@ -312,6 +312,8 @@ def sign_sales_invoice_pdf(doctype, sales_invoice_name, print_format_name=None, 
 
         return "success"
 
+    except ValidationError:
+        raise
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), f"{doctype} Digital Sign Error")
         frappe.msgprint("Error log created.")
