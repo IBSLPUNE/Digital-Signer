@@ -146,13 +146,22 @@ def sign_sales_invoice_pdf(doctype,sales_invoice_name, print_format_name=None, e
             frappe.throw("Password is wrong.")
 
         if digi.pfx_file_use:
+            pfx = digi.pfx_file
+            if not pfx:
+            	frappe.throw("PFX not uploaded in Document Sign Setting.")
             pfx_file_path = frappe.get_site_path(digi.pfx_file.lstrip("/"))
-            signer = signers.SimpleSigner.load_pkcs12(
-                pfx_file_path,
-                signature_mechanism=None,
-                passphrase=actual_password.encode()
-            )
+            try:
+                signer = signers.SimpleSigner.load_pkcs12(
+                    pfx_file_path,
+                    passphrase=actual_password.encode()
+                )
+            except Exception as e:
+                frappe.throw("Incorrect password for the DSC file.")
         else:
+            cert = digi.certificate
+            pvt = digi.private_key
+            if not cert or not pvt:
+            	frappe.throw("Private Key or Certificate not uploaded in Document Sign Setting.")
             cert_path = frappe.get_site_path(digi.certificate.lstrip("/"))
             key_path = frappe.get_site_path(digi.private_key.lstrip("/"))
             signer = signers.SimpleSigner.load(
@@ -217,6 +226,8 @@ def sign_sales_invoice_pdf(doctype,sales_invoice_name, print_format_name=None, e
         return "success"
 
     except Exception as e:
-        frappe.log_error(f"Error in sign_sales_invoice_pdf: {str(e)}", "{doctype} PDF Signing")
-        frappe.throw(f"Failed to sign PDF: {str(e)}")
+        frappe.log_error(frappe.get_traceback(), f"{doctype} Digital Sign Error")
+        #frappe.throw(f"Failed to sign PDF: {str(e)}")
+        frappe.msgprint("Error log created.")
+        frappe.throw("An unexpected error occurred while processing the digital signature or you have enter wrong password in setting or PFX file invalid And Error log has been created.")
 

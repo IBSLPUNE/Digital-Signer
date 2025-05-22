@@ -24,6 +24,7 @@
    "fieldname": "private_key",
    "fieldtype": "Attach",
    "label": "Private Key",
+   "mandatory_depends_on": "eval:doc.pfx_file_use == 0;",
    "read_only_depends_on": "eval:doc.pfx_file_use == 1;"
   },
   {
@@ -35,6 +36,7 @@
    "fieldname": "certificate",
    "fieldtype": "Attach",
    "label": "Certificate",
+   "mandatory_depends_on": "eval:doc.pfx_file_use == 0;",
    "read_only_depends_on": "eval:doc.pfx_file_use == 1;"
   },
   {
@@ -49,7 +51,7 @@
    "reqd": 1
   },
   {
-   "default": "0",
+   "default": "1",
    "fieldname": "pfx_file_use",
    "fieldtype": "Check",
    "label": "PFX File Use"
@@ -92,7 +94,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-05-19 19:44:09.603890",
+ "modified": "2025-05-22 15:23:22.367814",
  "modified_by": "Administrator",
  "module": "Digital Signer",
  "name": "Document Sign Setting",
